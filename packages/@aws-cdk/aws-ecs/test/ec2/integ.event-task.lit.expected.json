@@ -575,355 +575,6 @@
         "EcsClusterDefaultAutoScalingGroupLifecycleHookDrainHookRoleA38EC83B"
       ]
     },
-    "TaskDefTaskRole1EDB4A67": {
-      "Type": "AWS::IAM::Role",
-      "Properties": {
-        "AssumeRolePolicyDocument": {
-          "Statement": [
-            {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Principal": {
-                "Service": {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "ecs-tasks.",
-                      {
-                        "Ref": "AWS::URLSuffix"
-                      }
-                    ]
-                  ]
-                }
-              }
-            }
-          ],
-          "Version": "2012-10-17"
-        }
-      }
-    },
-    "TaskDef54694570": {
-      "Type": "AWS::ECS::TaskDefinition",
-      "Properties": {
-        "ContainerDefinitions": [
-          {
-            "Essential": true,
-            "Image": {
-              "Fn::Join": [
-                "",
-                [
-                  {
-                    "Fn::Select": [
-                      4,
-                      {
-                        "Fn::Split": [
-                          ":",
-                          {
-                            "Fn::Join": [
-                              "",
-                              [
-                                "arn:",
-                                {
-                                  "Ref": "AWS::Partition"
-                                },
-                                ":ecr:",
-                                {
-                                  "Ref": "AWS::Region"
-                                },
-                                ":",
-                                {
-                                  "Ref": "AWS::AccountId"
-                                },
-                                ":repository/",
-                                {
-                                  "Fn::GetAtt": [
-                                    "EventImageAdoptRepositoryDFAAC242",
-                                    "RepositoryName"
-                                  ]
-                                }
-                              ]
-                            ]
-                          }
-                        ]
-                      }
-                    ]
-                  },
-                  ".dkr.ecr.",
-                  {
-                    "Fn::Select": [
-                      3,
-                      {
-                        "Fn::Split": [
-                          ":",
-                          {
-                            "Fn::Join": [
-                              "",
-                              [
-                                "arn:",
-                                {
-                                  "Ref": "AWS::Partition"
-                                },
-                                ":ecr:",
-                                {
-                                  "Ref": "AWS::Region"
-                                },
-                                ":",
-                                {
-                                  "Ref": "AWS::AccountId"
-                                },
-                                ":repository/",
-                                {
-                                  "Fn::GetAtt": [
-                                    "EventImageAdoptRepositoryDFAAC242",
-                                    "RepositoryName"
-                                  ]
-                                }
-                              ]
-                            ]
-                          }
-                        ]
-                      }
-                    ]
-                  },
-                  ".amazonaws.com/",
-                  {
-                    "Fn::GetAtt": [
-                      "EventImageAdoptRepositoryDFAAC242",
-                      "RepositoryName"
-                    ]
-                  },
-                  ":",
-                  {
-                    "Fn::Select": [
-                      1,
-                      {
-                        "Fn::Split": [
-                          ":",
-                          {
-                            "Ref": "EventImageImageNameE972A8B1"
-                          }
-                        ]
-                      }
-                    ]
-                  }
-                ]
-              ]
-            },
-            "Links": [],
-            "LinuxParameters": {
-              "Capabilities": {
-                "Add": [],
-                "Drop": []
-              },
-              "Devices": [],
-              "Tmpfs": []
-            },
-            "LogConfiguration": {
-              "LogDriver": "awslogs",
-              "Options": {
-                "awslogs-group": {
-                  "Ref": "TaskLoggingLogGroupC7E938D4"
-                },
-                "awslogs-stream-prefix": "EventDemo",
-                "awslogs-region": {
-                  "Ref": "AWS::Region"
-                }
-              }
-            },
-            "Memory": 256,
-            "MountPoints": [],
-            "Name": "TheContainer",
-            "PortMappings": [],
-            "Ulimits": [],
-            "VolumesFrom": []
-          }
-        ],
-        "ExecutionRoleArn": {
-          "Fn::GetAtt": [
-            "TaskDefExecutionRoleB4775C97",
-            "Arn"
-          ]
-        },
-        "Family": "awsecsintegecsTaskDef8DD0C801",
-        "NetworkMode": "bridge",
-        "PlacementConstraints": [],
-        "RequiresCompatibilities": [
-          "EC2"
-        ],
-        "TaskRoleArn": {
-          "Fn::GetAtt": [
-            "TaskDefTaskRole1EDB4A67",
-            "Arn"
-          ]
-        },
-        "Volumes": []
-      }
-    },
-    "TaskDefExecutionRoleB4775C97": {
-      "Type": "AWS::IAM::Role",
-      "Properties": {
-        "AssumeRolePolicyDocument": {
-          "Statement": [
-            {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Principal": {
-                "Service": {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "ecs-tasks.",
-                      {
-                        "Ref": "AWS::URLSuffix"
-                      }
-                    ]
-                  ]
-                }
-              }
-            }
-          ],
-          "Version": "2012-10-17"
-        }
-      }
-    },
-    "TaskDefExecutionRoleDefaultPolicy0DBB737A": {
-      "Type": "AWS::IAM::Policy",
-      "Properties": {
-        "PolicyDocument": {
-          "Statement": [
-            {
-              "Action": [
-                "ecr:BatchCheckLayerAvailability",
-                "ecr:GetDownloadUrlForLayer",
-                "ecr:BatchGetImage"
-              ],
-              "Effect": "Allow",
-              "Resource": {
-                "Fn::Join": [
-                  "",
-                  [
-                    "arn:",
-                    {
-                      "Ref": "AWS::Partition"
-                    },
-                    ":ecr:",
-                    {
-                      "Ref": "AWS::Region"
-                    },
-                    ":",
-                    {
-                      "Ref": "AWS::AccountId"
-                    },
-                    ":repository/",
-                    {
-                      "Fn::GetAtt": [
-                        "EventImageAdoptRepositoryDFAAC242",
-                        "RepositoryName"
-                      ]
-                    }
-                  ]
-                ]
-              }
-            },
-            {
-              "Action": "ecr:GetAuthorizationToken",
-              "Effect": "Allow",
-              "Resource": "*"
-            },
-            {
-              "Action": [
-                "logs:CreateLogStream",
-                "logs:PutLogEvents"
-              ],
-              "Effect": "Allow",
-              "Resource": {
-                "Fn::GetAtt": [
-                  "TaskLoggingLogGroupC7E938D4",
-                  "Arn"
-                ]
-              }
-            }
-          ],
-          "Version": "2012-10-17"
-        },
-        "PolicyName": "TaskDefExecutionRoleDefaultPolicy0DBB737A",
-        "Roles": [
-          {
-            "Ref": "TaskDefExecutionRoleB4775C97"
-          }
-        ]
-      }
-    },
-    "TaskDefEventsRoleFB3B67B8": {
-      "Type": "AWS::IAM::Role",
-      "Properties": {
-        "AssumeRolePolicyDocument": {
-          "Statement": [
-            {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Principal": {
-                "Service": {
-                  "Fn::Join": [
-                    "",
-                    [
-                      "events.",
-                      {
-                        "Ref": "AWS::URLSuffix"
-                      }
-                    ]
-                  ]
-                }
-              }
-            }
-          ],
-          "Version": "2012-10-17"
-        }
-      }
-    },
-    "TaskDefEventsRoleDefaultPolicyA124E85B": {
-      "Type": "AWS::IAM::Policy",
-      "Properties": {
-        "PolicyDocument": {
-          "Statement": [
-            {
-              "Action": "ecs:RunTask",
-              "Condition": {
-                "ArnEquals": {
-                  "ecs:cluster": {
-                    "Fn::GetAtt": [
-                      "EcsCluster97242B84",
-                      "Arn"
-                    ]
-                  }
-                }
-              },
-              "Effect": "Allow",
-              "Resource": {
-                "Ref": "TaskDef54694570"
-              }
-            },
-            {
-              "Action": "iam:PassRole",
-              "Effect": "Allow",
-              "Resource": {
-                "Fn::GetAtt": [
-                  "TaskDefExecutionRoleB4775C97",
-                  "Arn"
-                ]
-              }
-            }
-          ],
-          "Version": "2012-10-17"
-        },
-        "PolicyName": "TaskDefEventsRoleDefaultPolicyA124E85B",
-        "Roles": [
-          {
-            "Ref": "TaskDefEventsRoleFB3B67B8"
-          }
-        ]
-      }
-    },
     "EventImageAdoptRepositoryDFAAC242": {
       "Type": "Custom::ECRAdoptedRepository",
       "Properties": {
@@ -1104,14 +755,376 @@
         "AdoptEcrRepositorydbc60defc59544bcaa5c28c95d68f62cServiceRoleD788AA17"
       ]
     },
-    "TaskLoggingLogGroupC7E938D4": {
+    "ScheduledTaskExampleScheduledTaskDefTaskRole81CE8D22": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "ecs-tasks.",
+                      {
+                        "Ref": "AWS::URLSuffix"
+                      }
+                    ]
+                  ]
+                }
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        }
+      }
+    },
+    "ScheduledTaskExampleScheduledTaskDef3D99A3DD": {
+      "Type": "AWS::ECS::TaskDefinition",
+      "Properties": {
+        "ContainerDefinitions": [
+          {
+            "Cpu":1,
+            "Environment": [
+              {
+                "Name": "name",
+                "Value": "TRIGGER"
+              },
+              {
+                "Name": "value",
+                "Value": "CloudWatch Events"
+              }
+            ],
+            "Essential": true,
+            "Image": {
+              "Fn::Join": [
+                "",
+                [
+                  {
+                    "Fn::Select": [
+                      4,
+                      {
+                        "Fn::Split": [
+                          ":",
+                          {
+                            "Fn::Join": [
+                              "",
+                              [
+                                "arn:",
+                                {
+                                  "Ref": "AWS::Partition"
+                                },
+                                ":ecr:",
+                                {
+                                  "Ref": "AWS::Region"
+                                },
+                                ":",
+                                {
+                                  "Ref": "AWS::AccountId"
+                                },
+                                ":repository/",
+                                {
+                                  "Fn::GetAtt": [
+                                    "EventImageAdoptRepositoryDFAAC242",
+                                    "RepositoryName"
+                                  ]
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  ".dkr.ecr.",
+                  {
+                    "Fn::Select": [
+                      3,
+                      {
+                        "Fn::Split": [
+                          ":",
+                          {
+                            "Fn::Join": [
+                              "",
+                              [
+                                "arn:",
+                                {
+                                  "Ref": "AWS::Partition"
+                                },
+                                ":ecr:",
+                                {
+                                  "Ref": "AWS::Region"
+                                },
+                                ":",
+                                {
+                                  "Ref": "AWS::AccountId"
+                                },
+                                ":repository/",
+                                {
+                                  "Fn::GetAtt": [
+                                    "EventImageAdoptRepositoryDFAAC242",
+                                    "RepositoryName"
+                                  ]
+                                }
+                              ]
+                            ]
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  ".amazonaws.com/",
+                  {
+                    "Fn::GetAtt": [
+                      "EventImageAdoptRepositoryDFAAC242",
+                      "RepositoryName"
+                    ]
+                  },
+                  ":",
+                  {
+                    "Fn::Select": [
+                      1,
+                      {
+                        "Fn::Split": [
+                          ":",
+                          {
+                            "Ref": "EventImageImageNameE972A8B1"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              ]
+            },
+            "Links": [],
+            "LinuxParameters": {
+              "Capabilities": {
+                "Add": [],
+                "Drop": []
+              },
+              "Devices": [],
+              "Tmpfs": []
+            },
+            "LogConfiguration": {
+              "LogDriver": "awslogs",
+              "Options": {
+                "awslogs-group": {
+                  "Ref": "ScheduledTaskExampleScheduledTaskLoggingLogGroupBB9B0B9F"
+                },
+                "awslogs-stream-prefix": "ScheduledTaskExample",
+                "awslogs-region": {
+                  "Ref": "AWS::Region"
+                }
+              }
+            },
+            "Memory": 512,
+            "MountPoints": [],
+            "Name": "ScheduledContainer",
+            "PortMappings": [],
+            "Ulimits": [],
+            "VolumesFrom": []
+          }
+        ],
+        "ExecutionRoleArn": {
+          "Fn::GetAtt": [
+            "ScheduledTaskExampleScheduledTaskDefExecutionRole9F56827C",
+            "Arn"
+          ]
+        },
+        "Family": "awsecsintegecsScheduledTaskExampleScheduledTaskDef33A3630E",
+        "NetworkMode": "bridge",
+        "PlacementConstraints": [
+
+        ],
+        "RequiresCompatibilities": [
+          "EC2"
+        ],
+        "TaskRoleArn": {
+          "Fn::GetAtt": [
+            "ScheduledTaskExampleScheduledTaskDefTaskRole81CE8D22",
+            "Arn"
+          ]
+        },
+        "Volumes": []
+      }
+    },
+    "ScheduledTaskExampleScheduledTaskDefExecutionRole9F56827C": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "ecs-tasks.",
+                      {
+                        "Ref": "AWS::URLSuffix"
+                      }
+                    ]
+                  ]
+                }
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        }
+      }
+    },
+    "ScheduledTaskExampleScheduledTaskDefExecutionRoleDefaultPolicy2CF2ABB9": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": [
+                "ecr:BatchCheckLayerAvailability",
+                "ecr:GetDownloadUrlForLayer",
+                "ecr:BatchGetImage"
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::Join": [
+                  "",
+                  [
+                    "arn:",
+                    {
+                      "Ref": "AWS::Partition"
+                    },
+                    ":ecr:",
+                    {
+                      "Ref": "AWS::Region"
+                    },
+                    ":",
+                    {
+                      "Ref": "AWS::AccountId"
+                    },
+                    ":repository/",
+                    {
+                      "Fn::GetAtt": [
+                        "EventImageAdoptRepositoryDFAAC242",
+                        "RepositoryName"
+                      ]
+                    }
+                  ]
+                ]
+              }
+            },
+            {
+              "Action": "ecr:GetAuthorizationToken",
+              "Effect": "Allow",
+              "Resource": "*"
+            },
+            {
+              "Action": [
+                "logs:CreateLogStream",
+                "logs:PutLogEvents"
+              ],
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "ScheduledTaskExampleScheduledTaskLoggingLogGroupBB9B0B9F",
+                  "Arn"
+                ]
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PolicyName": "ScheduledTaskExampleScheduledTaskDefExecutionRoleDefaultPolicy2CF2ABB9",
+        "Roles": [
+          {
+            "Ref": "ScheduledTaskExampleScheduledTaskDefExecutionRole9F56827C"
+          }
+        ]
+      }
+    },
+    "ScheduledTaskExampleScheduledTaskDefEventsRoleE7141C0E": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": {
+                  "Fn::Join": [
+                    "",
+                    [
+                      "events.",
+                      {
+                        "Ref": "AWS::URLSuffix"
+                      }
+                    ]
+                  ]
+                }
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        }
+      }
+    },
+    "ScheduledTaskExampleScheduledTaskDefEventsRoleDefaultPolicyCF412441": {
+      "Type": "AWS::IAM::Policy",
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "ecs:RunTask",
+              "Condition": {
+                "ArnEquals": {
+                  "ecs:cluster": {
+                    "Fn::GetAtt": [
+                      "EcsCluster97242B84",
+                      "Arn"
+                    ]
+                  }
+                }
+              },
+              "Effect": "Allow",
+              "Resource": {
+                "Ref": "ScheduledTaskExampleScheduledTaskDef3D99A3DD"
+              }
+            },
+            {
+              "Action": "iam:PassRole",
+              "Effect": "Allow",
+              "Resource": {
+                "Fn::GetAtt": [
+                  "ScheduledTaskExampleScheduledTaskDefExecutionRole9F56827C",
+                  "Arn"
+                ]
+              }
+            }
+          ],
+          "Version": "2012-10-17"
+        },
+        "PolicyName": "ScheduledTaskExampleScheduledTaskDefEventsRoleDefaultPolicyCF412441",
+        "Roles": [
+          {
+            "Ref": "ScheduledTaskExampleScheduledTaskDefEventsRoleE7141C0E"
+          }
+        ]
+      }
+    },
+    "ScheduledTaskExampleScheduledTaskLoggingLogGroupBB9B0B9F": {
       "Type": "AWS::Logs::LogGroup",
       "Properties": {
         "RetentionInDays": 365
       },
       "DeletionPolicy": "Retain"
     },
-    "Rule4C995B7F": {
+    "ScheduledTaskExampleScheduledEventRuleF44AC7A1": {
       "Type": "AWS::Events::Rule",
       "Properties": {
         "ScheduleExpression": "rate(1 minute)",
@@ -1125,18 +1138,15 @@
               ]
             },
             "EcsParameters": {
-              "TaskCount": 1,
+              "TaskCount": 2,
               "TaskDefinitionArn": {
-                "Ref": "TaskDef54694570"
+                "Ref": "ScheduledTaskExampleScheduledTaskDef3D99A3DD"
               }
             },
-            "Id": "EventTarget",
-            "InputTransformer": {
-              "InputTemplate": "{\"containerOverrides\":[{\"name\":\"TheContainer\",\"environment\":[{\"name\":\"I_WAS_TRIGGERED\",\"value\":\"From CloudWatch Events\"}]}]}"
-            },
+            "Id": "ScheduledEventRuleTarget",
             "RoleArn": {
               "Fn::GetAtt": [
-                "TaskDefEventsRoleFB3B67B8",
+                "ScheduledTaskExampleScheduledTaskDefEventsRoleE7141C0E",
                 "Arn"
               ]
             }
