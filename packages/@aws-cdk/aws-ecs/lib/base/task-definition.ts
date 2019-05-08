@@ -2,6 +2,7 @@ import iam = require('@aws-cdk/aws-iam');
 import { Construct, Resource, Token } from '@aws-cdk/cdk';
 import { ContainerDefinition, ContainerDefinitionOptions } from '../container-definition';
 import { CfnTaskDefinition } from '../ecs.generated';
+import { AwsLogDriver } from '../log-drivers/aws-log-driver';
 import { isEc2Compatible, isFargateCompatible } from '../util';
 
 /**
@@ -227,6 +228,10 @@ export class TaskDefinition extends Resource {
    * Create a new container to this task definition
    */
   public addContainer(id: string, props: ContainerDefinitionOptions) {
+    if (isFargateCompatible(this.compatibility)) {
+      const logging = new AwsLogDriver(this, 'FargateLogging', { streamPrefix: this.node.id });
+      return new ContainerDefinition(this, id, { taskDefinition: this, logging, ...props });
+    }
     return new ContainerDefinition(this, id, { taskDefinition: this, ...props });
   }
 
