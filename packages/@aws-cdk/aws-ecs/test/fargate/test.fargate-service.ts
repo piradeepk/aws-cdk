@@ -472,7 +472,7 @@ export = {
   'Allows adding tracing with AWS X-ray with defaults'(test: Test) {
     // GIVEN
     const stack = new cdk.Stack();
-    const vpc = new ec2.VpcNetwork(stack, 'MyVpc', {});
+    const vpc = new ec2.Vpc(stack, 'MyVpc', {});
     const cluster = new ecs.Cluster(stack, 'EcsCluster', { vpc });
     const taskDefinition = new ecs.FargateTaskDefinition(stack, 'FargateTaskDef');
 
@@ -531,7 +531,7 @@ export = {
   'Allows adding tracing with AWS X-ray with options'(test: Test) {
     // GIVEN
     const stack = new cdk.Stack();
-    const vpc = new ec2.VpcNetwork(stack, 'MyVpc', {});
+    const vpc = new ec2.Vpc(stack, 'MyVpc', {});
     const cluster = new ecs.Cluster(stack, 'EcsCluster', { vpc });
     const taskDefinition = new ecs.FargateTaskDefinition(stack, 'FargateTaskDef');
 

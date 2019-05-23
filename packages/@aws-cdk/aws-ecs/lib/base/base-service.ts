@@ -481,5 +481,5 @@ export interface TracingOptions {
    *
    * @default true
    */
-  readonly createLogs?: boolean;
+  readonly enableLogging?: boolean;
 }

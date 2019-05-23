@@ -2,8 +2,10 @@ import cloudwatch = require ('@aws-cdk/aws-cloudwatch');
 import ec2 = require('@aws-cdk/aws-ec2');
 import elb = require('@aws-cdk/aws-elasticloadbalancing');
 import { Construct, Resource, Token } from '@aws-cdk/cdk';
-import { BaseService, BaseServiceProps, IService } from '../base/base-service';
+import { BaseService, BaseServiceProps, IService, TracingOptions } from '../base/base-service';
 import { NetworkMode, TaskDefinition } from '../base/task-definition';
+import { Protocol } from '../container-definition';
+import { ContainerImage } from '../container-image';
 import { CfnService } from '../ecs.generated';
 import { BinPackResource, PlacementConstraint, PlacementStrategy } from '../placement';
 
@@ -139,6 +141,31 @@ export class Ec2Service extends BaseService implements IEc2Service, elb.ILoadBal
 
     if (!this.taskDefinition.defaultContainer) {
       throw new Error('A TaskDefinition must have at least one essential container');
+    }
+  }
+
+  /**
+   * Adds AWS X-Ray daemon as a sidecar container to enable tracing
+   */
+  public addTracing(props: TracingOptions = {}) {
+    // TODO: adjust task size based on container-level resources (cpu/memory)?
+    const optIn = props.enableLogging !== undefined ? props.enableLogging : true;
+    const xray = this.taskDefinition.addContainer("xray", {
+      image: ContainerImage.fromRegistry("amazon/aws-xray-daemon"),
+      cpu: props.cpu,
+      memoryLimitMiB: props.memoryLimitMiB,
+      memoryReservationMiB: props.memoryReservationMiB !== undefined ? props.memoryReservationMiB : 256,
+      essential: props.essential || false,
+      logging: optIn ? this.createAWSLogDriver(this.node.id) : undefined,
+    });
+
+    xray.addPortMappings({
+      containerPort: 2000,
+      protocol: Protocol.Udp
+    });
+
+    if (this.taskDefinition.defaultContainer && this.taskDefinition.networkMode === NetworkMode.Bridge) {
+      this.taskDefinition.defaultContainer.addLink(xray);
     }
   }
 

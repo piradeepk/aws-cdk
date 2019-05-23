@@ -94,7 +94,7 @@ export class FargateService extends BaseService implements IFargateService {
    */
   public addTracing(props: TracingOptions = {}) {
     // TODO: adjust task size based on container-level resources (cpu/memory)?
-    const optIn = props.createLogs !== undefined ? props.createLogs : true;
+    const optIn = props.enableLogging !== undefined ? props.enableLogging : true;
     const xray = this.taskDefinition.addContainer("xray", {
       image: ContainerImage.fromRegistry("amazon/aws-xray-daemon"),
       cpu: props.cpu,
@@ -108,7 +108,6 @@ export class FargateService extends BaseService implements IFargateService {
       protocol: Protocol.Udp
     });
   }
-
 }
 
 /**

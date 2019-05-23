@@ -1,27 +1,26 @@
 import ec2 = require('@aws-cdk/aws-ec2');
 import iam = require('@aws-cdk/aws-iam');
 import cdk = require('@aws-cdk/cdk');
+import path = require('path');
 import ecs = require('../../lib');
 
 const app = new cdk.App();
 const stack = new cdk.Stack(app, 'aws-ecs-integ');
 
-const vpc = new ec2.VpcNetwork(stack, 'Vpc', { maxAZs: 2 });
+const vpc = new ec2.Vpc(stack, 'Vpc', { maxAZs: 2 });
 
 const cluster = new ecs.Cluster(stack, 'FargateCluster', { vpc });
 
-// TODO: change to building image from Asset
 const taskDefinition = new ecs.FargateTaskDefinition(stack, 'TaskDef', {
   memoryMiB: '1GB',
   cpu: '512',
-  executionRole: iam.Role.fromRoleAttributes(stack, 'ExecutionRole', {
-    roleArn: 'arn:aws:iam::xxxxxxxxxxxx51:role/ecsExecutionRole'
-  })
+  executionRole: iam.Role.fromRoleArn(stack, 'ExecutionRole', 'arn:aws:iam::xxxxxxxxxxxx51:role/ecsExecutionRole')
 });
 
-// TODO: remove after change to use asset image
 const container = taskDefinition.addContainer('web', {
-  image: ecs.ContainerImage.fromRegistry("xxxxxxxxxxxx51.dkr.ecr.us-west-2.amazonaws.com/scorekeep-api"),
+  image: new ecs.AssetImage(stack, 'Image', {
+    directory: path.join(__dirname, '..', 'demo-image')
+  })
 });
 
 container.addPortMappings({
