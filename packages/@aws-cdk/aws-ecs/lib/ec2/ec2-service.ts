@@ -164,9 +164,13 @@ export class Ec2Service extends BaseService implements IEc2Service, elb.ILoadBal
       protocol: Protocol.Udp
     });
 
+    // If the task definition is using bridge network mode, then add links and environment variables to the xray
+    // container in the default container.
     if (this.taskDefinition.defaultContainer && this.taskDefinition.networkMode === NetworkMode.Bridge) {
+      // Add the xray container as a link to the default task def container.
       this.taskDefinition.defaultContainer.addLink(xray);
-      // this.taskDefinition.defaultContainer
+      // Add the xray daemon address to environment variables
+      this.taskDefinition.defaultContainer.addEnvironment('AWS_XRAY_DAEMON_ADDRESS', 'xray-daemon:2000');
     }
   }
 

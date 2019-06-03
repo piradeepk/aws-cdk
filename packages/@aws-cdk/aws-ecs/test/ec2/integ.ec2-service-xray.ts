@@ -17,7 +17,7 @@ const taskDefinition = new ecs.Ec2TaskDefinition(stack, 'TaskDef', {
 
 const container = taskDefinition.addContainer('primary', {
   image: ecs.ContainerImage.fromRegistry("xxxxxxxxxxxx51.dkr.ecr.us-west-2.amazonaws.com/scorekeep-api"),
-  memoryLimitMiB: 512,
+  memoryLimitMiB: 512
 });
 
 container.addPortMappings({

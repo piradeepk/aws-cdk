@@ -288,8 +288,9 @@ export class ContainerDefinition extends cdk.Construct {
   /**
    * Add environment variables to this container.
    */
-  public addEnvironment(env: { [key: string]: string }) {
-    this.environment = this.environment || env;
+  public addEnvironment(key: string, value: string) {
+    this.environment = this.environment || {};
+    this.environment[key] = value;
   }
 
   /**
