@@ -1,5 +1,6 @@
 import { IConstruct } from "./construct";
 import { unresolved } from "./encoding";
+import { createStackTrace } from './stack-trace';
 import { TokenMap } from "./token-map";
 
 /**
@@ -36,6 +37,11 @@ export class Token {
     return unresolved(obj);
   }
 
+  /**
+   * The captured stack trace which represents the location in which this token was created.
+   */
+  protected readonly trace: string[];
+
   private tokenStringification?: string;
   private tokenListification?: string[];
   private tokenNumberification?: number;
@@ -60,6 +66,7 @@ export class Token {
    * @param displayName A human-readable display hint for this Token
    */
   constructor(private readonly valueOrFunction?: any, private readonly displayName?: string) {
+    this.trace = createStackTrace();
   }
 
   /**
@@ -86,16 +93,16 @@ export class Token {
    * on the string.
    */
   public toString(): string {
-    const valueType = typeof this.valueOrFunction;
     // Optimization: if we can immediately resolve this, don't bother
-    // registering a Token.
-    if (valueType === 'string' || valueType === 'number' || valueType === 'boolean') {
-      return this.valueOrFunction.toString();
+    // registering a Token (unless it's already a token).
+    if (typeof(this.valueOrFunction) === 'string') {
+      return this.valueOrFunction;
     }
 
     if (this.tokenStringification === undefined) {
       this.tokenStringification = TokenMap.instance().registerString(this, this.displayName);
     }
+
     return this.tokenStringification;
   }
 
@@ -132,9 +139,8 @@ export class Token {
    * is constructing a `FnJoin` or a `FnSelect` on it.
    */
   public toList(): string[] {
-    const valueType = typeof this.valueOrFunction;
-    if (valueType === 'string' || valueType === 'number' || valueType === 'boolean') {
-      throw new Error('Got a literal Token value; only intrinsics can ever evaluate to lists.');
+    if (Array.isArray(this.valueOrFunction)) {
+      return this.valueOrFunction;
     }
 
     if (this.tokenListification === undefined) {
@@ -153,18 +159,25 @@ export class Token {
    * other operations can and probably will destroy the token-ness of the value.
    */
   public toNumber(): number {
+    // Optimization: if we can immediately resolve this, don't bother
+    // registering a Token.
+    if (typeof(this.valueOrFunction) === 'number') {
+      return this.valueOrFunction;
+    }
+
     if (this.tokenNumberification === undefined) {
-      const valueType = typeof this.valueOrFunction;
-      // Optimization: if we can immediately resolve this, don't bother
-      // registering a Token.
-      if (valueType === 'number') { return this.valueOrFunction; }
-      if (valueType !== 'function') {
-        throw new Error(`Token value is not number or lazy, can't represent as number: ${this.valueOrFunction}`);
-      }
       this.tokenNumberification = TokenMap.instance().registerNumber(this);
     }
 
     return this.tokenNumberification;
+  }
+
+  /**
+   * Creates a throwable Error object that contains the token creation stack trace.
+   * @param message Error message
+   */
+  protected newError(message: string): any {
+    return new Error(`${message}\nToken created:\n    at ${this.trace.join('\n    at ')}\nError thrown:`);
   }
 }
 

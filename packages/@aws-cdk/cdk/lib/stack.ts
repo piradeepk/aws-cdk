@@ -1,12 +1,12 @@
 import cxapi = require('@aws-cdk/cx-api');
+import fs = require('fs');
+import path = require('path');
 import { App } from './app';
 import { CfnParameter } from './cfn-parameter';
 import { Construct, IConstruct, PATH_SEP } from './construct';
 import { Environment } from './environment';
 import { HashedAddressingScheme, IAddressingScheme, LogicalIDs } from './logical-id';
-import { ISynthesisSession } from './synthesis';
 import { makeUniqueId } from './uniqueid';
-
 export interface StackProps {
   /**
    * The AWS environment (account/region) where this stack will be deployed.
@@ -40,6 +40,13 @@ export interface StackProps {
    * @default true
    */
   readonly autoDeploy?: boolean;
+
+  /**
+   * Stack tags that will be applied to all the taggable resources and the stack itself.
+   *
+   * @default {}
+   */
+  readonly tags?: { [key: string]: string };
 }
 
 const STACK_SYMBOL = Symbol.for('@aws-cdk/cdk.Stack');
@@ -47,7 +54,8 @@ const STACK_SYMBOL = Symbol.for('@aws-cdk/cdk.Stack');
 /**
  * A root construct which represents a single CloudFormation stack.
  */
-export class Stack extends Construct {
+export class Stack extends Construct implements ITaggable {
+
   /**
    * Adds a metadata annotation "aws:cdk:physical-name" to the construct if physicalName
    * is non-null. This can be used later by tools and aspects to determine if resources
@@ -71,6 +79,11 @@ export class Stack extends Construct {
   }
 
   private static readonly VALID_STACK_NAME_REGEX = /^[A-Za-z][A-Za-z0-9-]*$/;
+
+  /**
+   * Tags to be applied to the stack.
+   */
+  public readonly tags: TagManager;
 
   /**
    * Lists all missing contextual information.
@@ -149,6 +162,7 @@ export class Stack extends Construct {
     this.logicalIds = new LogicalIDs(props && props.namingScheme ? props.namingScheme : new HashedAddressingScheme());
     this.name = props.stackName !== undefined ? props.stackName : this.calculateStackName();
     this.autoDeploy = props && props.autoDeploy === false ? false : true;
+    this.tags = new TagManager(TagType.KeyValue, "aws:cdk:stack", props.tags);
 
     if (!Stack.VALID_STACK_NAME_REGEX.test(this.name)) {
       throw new Error(`Stack name must match the regular expression: ${Stack.VALID_STACK_NAME_REGEX.toString()}, got '${name}'`);
@@ -161,7 +175,7 @@ export class Stack extends Construct {
   public get environment() {
     const account = this.env.account || 'unknown-account';
     const region = this.env.region || 'unknown-region';
-    return `aws://${account}/${region}`;
+    return cxapi.EnvironmentUtils.format(account, region);
   }
 
   /**
@@ -169,13 +183,13 @@ export class Stack extends Construct {
    *
    * @returns The Resource or undefined if not found
    */
-  public findResource(path: string): CfnResource | undefined {
-    const r = this.node.findChild(path);
+  public findResource(constructPath: string): CfnResource | undefined {
+    const r = this.node.findChild(constructPath);
     if (!r) { return undefined; }
 
     // found an element, check if it's a resource (duck-type)
     if (!('resourceType' in r)) {
-      throw new Error(`Found a stack element for ${path} but it is not a resource: ${r.toString()}`);
+      throw new Error(`Found a stack element for ${constructPath} but it is not a resource: ${r.toString()}`);
     }
 
     return r as CfnResource;
@@ -489,25 +503,32 @@ export class Stack extends Construct {
         }
       }
     }
+
+    if (this.tags.hasTags()) {
+      this.node.addMetadata(cxapi.STACK_TAGS_METADATA_KEY, this.tags.renderTags());
+    }
   }
 
-  protected synthesize(session: ISynthesisSession): void {
+  protected synthesize(builder: cxapi.CloudAssemblyBuilder): void {
     const template = `${this.name}.template.json`;
 
     // write the CloudFormation template as a JSON file
-    session.store.writeJson(template, this._toCloudFormation());
+    const outPath = path.join(builder.outdir, template);
+    fs.writeFileSync(outPath, JSON.stringify(this._toCloudFormation(), undefined, 2));
 
     const deps = this.dependencies().map(s => s.name);
     const meta = this.collectMetadata();
 
+    const properties: cxapi.AwsCloudFormationStackProperties = {
+      templateFile: template,
+      parameters: Object.keys(this.parameterValues).length > 0 ? this.node.resolve(this.parameterValues) : undefined
+    };
+
     // add an artifact that represents this stack
-    session.addArtifact(this.name, {
+    builder.addArtifact(this.name, {
       type: cxapi.ArtifactType.AwsCloudFormationStack,
       environment: this.environment,
-      properties: {
-        templateFile: template,
-        parameters: Object.keys(this.parameterValues).length > 0 ? this.node.resolve(this.parameterValues) : undefined
-      },
+      properties,
       autoDeploy: this.autoDeploy ? undefined : false,
       dependencies: deps.length > 0 ? deps : undefined,
       metadata: Object.keys(meta).length > 0 ? meta : undefined,
@@ -548,6 +569,7 @@ export class Stack extends Construct {
     visit(this);
 
     const app = this.parentApp();
+
     if (app && app.node.metadata.length > 0) {
       output[PATH_SEP] = app.node.metadata;
     }
@@ -555,6 +577,7 @@ export class Stack extends Construct {
     return output;
 
     function visit(node: IConstruct) {
+
       if (node.node.metadata.length > 0) {
         // Make the path absolute
         output[PATH_SEP + node.node.path] = node.node.metadata.map(md => node.node.resolve(md) as cxapi.MetadataEntry);
@@ -660,8 +683,9 @@ function cfnElements(node: IConstruct, into: CfnElement[] = []): CfnElement[] {
 import { ArnComponents, arnFromComponents, parseArn } from './arn';
 import { CfnElement } from './cfn-element';
 import { CfnReference } from './cfn-reference';
-import { CfnResource } from './cfn-resource';
+import { CfnResource, TagType } from './cfn-resource';
 import { Aws, ScopedAws } from './pseudo';
+import { ITaggable, TagManager } from './tag-manager';
 
 /**
  * Find all resources in a set of constructs

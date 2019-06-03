@@ -1,10 +1,10 @@
 import events = require('@aws-cdk/aws-events');
 import iam = require('@aws-cdk/aws-iam');
 import kms = require('@aws-cdk/aws-kms');
-import { IBucketNotificationDestination } from '@aws-cdk/aws-s3-notifications';
 import { applyRemovalPolicy, Construct, IResource, RemovalPolicy, Resource, Token } from '@aws-cdk/cdk';
 import { EOL } from 'os';
 import { BucketPolicy } from './bucket-policy';
+import { IBucketNotificationDestination } from './destination';
 import { BucketNotifications } from './notifications-resource';
 import perms = require('./perms');
 import { LifecycleRule } from './rule';
@@ -604,7 +604,7 @@ export interface BucketProps {
    * If you choose KMS, you can specify a KMS key via `encryptionKey`. If
    * encryption key is not specified, a key will automatically be created.
    *
-   * @default BucketEncryption.Unencrypted
+   * @default - `Kms` if `encryptionKey` is specified, or `Unencrypted` otherwise.
    */
   readonly encryption?: BucketEncryption;
 
@@ -934,8 +934,11 @@ export class Bucket extends BucketBase {
     encryptionKey?: kms.IKey
   } {
 
-    // default to unencrypted.
-    const encryptionType = props.encryption || BucketEncryption.Unencrypted;
+    // default based on whether encryptionKey is specified
+    let encryptionType = props.encryption;
+    if (encryptionType === undefined) {
+      encryptionType = props.encryptionKey ? BucketEncryption.Kms : BucketEncryption.Unencrypted;
+    }
 
     // if encryption key is set, encryption must be set to KMS.
     if (encryptionType !== BucketEncryption.Kms && props.encryptionKey) {
