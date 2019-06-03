@@ -4,7 +4,7 @@ import cdk = require('@aws-cdk/cdk');
 import ecs = require('../../lib');
 
 const app = new cdk.App();
-const stack = new cdk.Stack(app, 'aws-ecs-integ');
+const stack = new cdk.Stack(app, 'aws-fargate-xray');
 
 const vpc = new ec2.Vpc(stack, 'Vpc', { maxAZs: 2 });
 

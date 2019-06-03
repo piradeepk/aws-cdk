@@ -242,6 +242,7 @@ export class ContainerDefinition extends cdk.Construct {
    */
   public readonly taskDefinition: TaskDefinition;
 
+  private environment?: { [key: string]: string };
   /**
    * The configured container links
    */
@@ -253,6 +254,7 @@ export class ContainerDefinition extends cdk.Construct {
     this.taskDefinition = props.taskDefinition;
     this.memoryLimitSpecified = props.memoryLimitMiB !== undefined || props.memoryReservationMiB !== undefined;
     this.linuxParameters = props.linuxParameters;
+    this.environment = props.environment;
 
     props.image.bind(this);
     if (props.logging) { props.logging.bind(this); }
@@ -281,6 +283,13 @@ export class ContainerDefinition extends cdk.Construct {
    */
   public addMountPoints(...mountPoints: MountPoint[]) {
     this.mountPoints.push(...mountPoints);
+  }
+
+  /**
+   * Add environment variables to this container.
+   */
+  public addEnvironment(env: { [key: string]: string }) {
+    this.environment = this.environment || env;
   }
 
   /**
@@ -409,7 +418,7 @@ export class ContainerDefinition extends cdk.Construct {
       volumesFrom: this.volumesFrom.map(renderVolumeFrom),
       workingDirectory: this.props.workingDirectory,
       logConfiguration: this.props.logging && this.props.logging.renderLogDriver(),
-      environment: this.props.environment && renderKV(this.props.environment, 'name', 'value'),
+      environment: this.environment && renderKV(this.environment, 'name', 'value'),
       extraHosts: this.props.extraHosts && renderKV(this.props.extraHosts, 'hostname', 'ipAddress'),
       healthCheck: this.props.healthCheck && renderHealthCheck(this.props.healthCheck),
       links: this.links,

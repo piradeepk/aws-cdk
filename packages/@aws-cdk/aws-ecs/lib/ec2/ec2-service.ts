@@ -166,6 +166,7 @@ export class Ec2Service extends BaseService implements IEc2Service, elb.ILoadBal
 
     if (this.taskDefinition.defaultContainer && this.taskDefinition.networkMode === NetworkMode.Bridge) {
       this.taskDefinition.defaultContainer.addLink(xray);
+      // this.taskDefinition.defaultContainer
     }
   }
 
