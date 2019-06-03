@@ -155,7 +155,7 @@ export class Ec2Service extends BaseService implements IEc2Service, elb.ILoadBal
       cpu: props.cpu,
       memoryLimitMiB: props.memoryLimitMiB,
       memoryReservationMiB: props.memoryReservationMiB !== undefined ? props.memoryReservationMiB : 256,
-      essential: props.essential || false,
+      essential: props.essential !== undefined ? props.enableLogging : false,
       logging: optIn ? this.createAWSLogDriver(this.node.id) : undefined,
     });
 
