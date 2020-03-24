@@ -49,42 +49,6 @@ export = {
         Resources: {
           Fargate001516A4: {
             Type: "AWS::ECS::Service",
-            Properties: {
-              Cluster: {
-                Ref: "EcsCluster97242B84"
-              },
-              DeploymentConfiguration: {
-                MaximumPercent: 200,
-                MinimumHealthyPercent: 50
-              },
-              DesiredCount: 1,
-              EnableECSManagedTags: false,
-              LaunchType: "FARGATE",
-              NetworkConfiguration: {
-                AwsvpcConfiguration: {
-                  AssignPublicIp: "DISABLED",
-                  SecurityGroups: [
-                    {
-                      "Fn::GetAtt": [
-                        "FargateSecurityGroup953082A8",
-                        "GroupId"
-                      ]
-                    }
-                  ],
-                  Subnets: [
-                    {
-                      Ref: "MyVpcPrivateSubnet1Subnet5057CF7E"
-                    },
-                    {
-                      Ref: "MyVpcPrivateSubnet2Subnet0040C983"
-                    }
-                  ]
-                }
-              },
-              TaskDefinition: {
-                Ref: "FargateTaskDefC6FB60B4"
-              }
-            }
           },
         }
       }));
