@@ -33,7 +33,7 @@ export const ENABLE_DIFF_NO_FAIL = ENABLE_DIFF_NO_FAIL_CONTEXT;
  * If this is set, any newly created ECS service will have the logical name end
  * with `Resource` rather than `Service`.
  */
-export const ENABLE_CFN_SERVICE_RESOURCE_RENAME = 'aws-cdk/aws-ecs:enableCfnServiceResourceRename';
+export const ENABLE_SHORTEN_SRVC_LOGICAL_ID_CONTEXT = 'aws-cdk/aws-ecs:enableShortenSrvcLogicalId';
 
 /**
  * This map includes context keys and values for feature flags that enable
